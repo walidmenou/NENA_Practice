@@ -1,5 +1,5 @@
 import sys
-from collections import defaultdict
+from collections import defaultdict, deque
 
 n, m = [int(x) for x in sys.stdin.readline().strip().split()]
 adj = defaultdict(list)
@@ -13,31 +13,30 @@ for i in range(m):
 
 start1, start2 = [int(x) for x in sys.stdin.readline().strip().split()]
 
+visited1 = set([start1])
+visited2 = set([start2])
 
-def reachable(n, t, seen):
-    if n in seen:
-        return False
-    seen.add(n)
-
-    if n == t:
-        return True
-
-    for i in adj[n]:
-        if reachable(i, t, seen):
-            return True
-    return False
-
+q = deque([(start1, 1), (start2, 2)])
 
 res = -1
-for station in stations:
-    seen1 = set()
-    seen2 = set()
-    if (reachable(start1, station, seen1)
-            and reachable(start2, station, seen2)):
-        res = station
 
-if res != -1:
-    print("yes")
-    print(res)
+while q:
+    cur, who = q.popleft()
+    for i in adj[cur]:
+        if who == 1 and i in visited2 or who == 2 and i in visited1:
+            res = i
+            break
+        if who == 1 and i not in visited1:
+            visited1.add(i)
+            q.append((i, who))
+        if who == 2 and i not in visited2:
+            visited2.add(i)
+            q.append((i, who))
+    if res != -1:
+        break
+
+if res == -1:
+    print('no')
 else:
-    print("no")
+    print('yes')
+    print(res)
